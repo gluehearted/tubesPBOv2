@@ -54,4 +54,8 @@ public class User {
     public void showMenu() {
         System.out.println("User menu");
     }
+
+    public boolean isCustomer() {
+        return "customer".equalsIgnoreCase(role);
+    }
 }

@@ -3,12 +3,19 @@ package service;
 import org.mindrot.jbcrypt.BCrypt;
 import model.User;
 import DAO.UserDAO;
+import db.DatabaseConnection;
+import java.sql.Connection;
 
 public class UserService {
     private UserDAO userDAO;
 
     public UserService() {
-        this.userDAO = new UserDAO();
+        try {
+            Connection conn = DatabaseConnection.getConnection();
+            this.userDAO = new UserDAO(conn);
+        } catch (Exception e) {
+            e.printStackTrace(); // Handle the exception appropriately
+        }
     }
 
     public User login(String username, String inputPassword) {

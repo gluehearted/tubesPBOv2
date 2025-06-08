@@ -1,8 +1,10 @@
 package service;
 
-import dao.UserDAO;
+import DAO.UserDAO;
 import model.User;
-
+import exception.AuthenticationException;
+import exception.RegistrationException;
+import exception.DatabaseException;
 import java.sql.Connection;
 
 public class AuthService {
@@ -12,21 +14,11 @@ public class AuthService {
         this.userDAO = new UserDAO(conn);
     }
 
-    public User login(String username, String password) {
-        try {
-            return userDAO.login(username, password);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+    public User login(String username, String password) throws AuthenticationException, DatabaseException {
+        return userDAO.login(username, password);
     }
 
-    public boolean registerCustomer(User user) {
-        try {
-            return userDAO.registerCustomer(user);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
+    public void registerCustomer(User user) throws RegistrationException, DatabaseException {
+        userDAO.registerCustomer(user);
     }
 }

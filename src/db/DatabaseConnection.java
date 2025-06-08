@@ -4,6 +4,7 @@
  */
 package db;
 
+import exception.DatabaseException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -12,12 +13,34 @@ import java.sql.SQLException;
  *
  * @author Gabriel Prakosa A
  */
-public class DatabaseConnection {
-    private static final String URL = "jdbc:mysql://localhost:3306/db_appmakanan"; // ganti nama database
-    private static final String USER = "root"; // ganti user jika berbeda
-    private static final String PASSWORD = ""; // isi password mysql kamu
 
-    public static Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(URL, USER, PASSWORD);
+
+public class DatabaseConnection {
+    private static final String URL = "jdbc:mysql://localhost:3306/db_appmakanan";
+    private static final String USER = "root";
+    private static final String PASSWORD = "";
+    private static Connection connection = null;
+
+    public static Connection getConnection() throws DatabaseException {
+        if (connection == null) {
+            try {
+                Class.forName("com.mysql.cj.jdbc.Driver");
+                connection = DriverManager.getConnection(URL, USER, PASSWORD);
+            } catch (ClassNotFoundException | SQLException e) {
+                throw new DatabaseException("Gagal menghubungkan ke database", e);
+            }
+        }
+        return connection;
+    }
+
+    public static void closeConnection() {
+        if (connection != null) {
+            try {
+                connection.close();
+                connection = null;
+            } catch (SQLException e) {
+                throw new DatabaseException("Gagal menutup koneksi database", e);
+            }
+        }
     }
 }
