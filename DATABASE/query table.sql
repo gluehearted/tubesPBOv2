@@ -11,6 +11,8 @@ CREATE TABLE User (
     ewalletBalance DOUBLE DEFAULT 0.0,
     rekeningBalance DOUBLE DEFAULT 0.0
 );
+ALTER TABLE user MODIFY password VARCHAR(255) NOT NULL;
+select * from user;
 
 -- 3. Tabel Restaurant
 CREATE TABLE Restaurant (

@@ -6,8 +6,10 @@ package ui;
 
 import java.awt.CardLayout;
 import javax.swing.JPanel;
-import javax.swing.JFrame;
-import model.User;
+import db.DatabaseConnection;
+import exception.DatabaseException;
+import javax.swing.JOptionPane;
+import java.util.logging.Logger;
 
 /**
  *
@@ -16,47 +18,39 @@ import model.User;
 
 
  public class MainFrame extends javax.swing.JFrame {
-    private JPanel mainPanel;
+    private static final Logger LOGGER = Logger.getLogger(MainFrame.class.getName());
     private CardLayout cardLayout;
+    private JPanel barPanel;
 
+    /**
+     * Creates new form MainFrame
+     */
     public MainFrame() {
-        initComponents();
-
-        // Inisialisasi CardLayout untuk panel utama
         cardLayout = new CardLayout();
-        mainPanel.setLayout(cardLayout);
-        getContentPane().add(mainPanel);
-        
-        // Tambahkan form login & register ke mainPanel
-        mainPanel.add(new LoginForm(this), "login");
-        mainPanel.add(new RegisterForm(this), "register");
-
-        // Tampilkan login saat aplikasi pertama kali dibuka
-        showLoginForm();
+        initComponents();
+        initializeApplication();
     }
 
-    // Menampilkan login
-    public void showLoginForm() {
-        cardLayout.show(mainPanel, "login");
-    }
-
-    // Menampilkan register
-    public void showRegisterForm() {
-        cardLayout.show(mainPanel, "register");
-    }
-
-    // Menampilkan dashboard customer dari data user yang login
-    public void showDashboardCustomer(User user) {
-        DashboardCustomer customerPanel = new DashboardCustomer(this, user);
-        mainPanel.add(customerPanel, "customer");
-        cardLayout.show(mainPanel, "customer");
-    }
-
-    // Menampilkan dashboard admin dari data user yang login
-    public void showDashboardAdmin(User user) {
-        DashboardAdmin adminPanel = new DashboardAdmin(this, user);
-        mainPanel.add(adminPanel, "admin");
-        cardLayout.show(mainPanel, "admin");
+    private void initializeApplication() {
+        try {
+            DatabaseConnection.getConnection();
+            LOGGER.info("Database connection initialized.");
+            if (cardPanel != null) {
+                cardPanel.add(new LoginPanel(cardPanel, cardLayout), "Login");
+                cardPanel.add(new RegisterPanel(cardPanel, cardLayout), "Register");
+                LOGGER.info("LoginPanel and RegisterPanel added to cardPanel.");
+                cardLayout.show(cardPanel, "Login");
+                LOGGER.info("Showing Login panel.");
+            } else {
+                LOGGER.severe("Error: Card panel not initialized.");
+                JOptionPane.showMessageDialog(this, "Error: Card panel not initialized", "Initialization Error", JOptionPane.ERROR_MESSAGE);
+                System.exit(1);
+            }
+        } catch (DatabaseException e) {
+            LOGGER.severe("Failed to connect to database: " + e.getMessage());
+            JOptionPane.showMessageDialog(this, "Failed to connect to database: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            System.exit(1);
+        }
     }
 
     /**
@@ -68,60 +62,69 @@ import model.User;
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jPanel1 = new javax.swing.JPanel();
+        cardPanel = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
-        btnLogin = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        jLabel1.setText("Aplikasi Pemesanan Makanan");
+        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Aplikasi Pemesanan Makanan", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.DEFAULT_POSITION));
+        jPanel1.setPreferredSize(new java.awt.Dimension(370, 330));
 
-        btnLogin.setText("Login");
-        btnLogin.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnLoginActionPerformed(evt);
-            }
-        });
+        cardPanel.setLayout(cardLayout);
+
+        jLabel1.setText("Selamat datang di Aplikasi Pemesanan Makanan");
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGap(57, 57, 57)
+                .addComponent(jLabel1)
+                .addContainerGap(48, Short.MAX_VALUE))
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(cardPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(cardPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
+        );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap(125, Short.MAX_VALUE)
-                .addComponent(jLabel1)
-                .addGap(118, 118, 118))
-            .addGroup(layout.createSequentialGroup()
-                .addGap(164, 164, 164)
-                .addComponent(btnLogin)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(58, 58, 58)
-                .addComponent(jLabel1)
-                .addGap(29, 29, 29)
-                .addComponent(btnLogin)
-                .addContainerGap(174, Short.MAX_VALUE))
+                .addContainerGap()
+                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
         );
 
         pack();
         setLocationRelativeTo(null);
+        setVisible(true);
     }// </editor-fold>//GEN-END:initComponents
-
-    private void btnLoginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLoginActionPerformed
-        showLoginForm();
-    }//GEN-LAST:event_btnLoginActionPerformed
 
     /**
      * @param args the command line arguments
      */
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
                 if ("Nimbus".equals(info.getName())) {
@@ -129,27 +132,17 @@ import model.User;
                     break;
                 }
             }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(MainFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(MainFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(MainFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+        } catch (Exception ex) {
             java.util.logging.Logger.getLogger(MainFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
-        //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new MainFrame().setVisible(true);
-            }
-        });
+        java.awt.EventQueue.invokeLater(() -> new MainFrame().setVisible(true));
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton btnLogin;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel cardPanel;
     // End of variables declaration//GEN-END:variables
 }
