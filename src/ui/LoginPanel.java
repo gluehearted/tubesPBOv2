@@ -146,20 +146,18 @@ public class LoginPanel extends javax.swing.JPanel {
         String username = usernameField.getText();
         String password = new String(passwordField.getPassword());
         try {
-            User user = authService.login(username, password);
+            User user = authService.login(username, password); // Passes plain-text password
             if (user.isCustomer()) {
-                // Buka CustomerDashboard sebagai JFrame terpisah
                 new CustomerDashboard(user).setVisible(true);
-                // Tutup MainFrame
                 SwingUtilities.getWindowAncestor(this).dispose();
             } else {
-                // Buka AdminDashboard sebagai JFrame terpisah
                 new AdminDashboard().setVisible(true);
-                // Tutup MainFrame
                 SwingUtilities.getWindowAncestor(this).dispose();
             }
+            LOGGER.info("Login successful for user: " + username);
         } catch (AuthenticationException | DatabaseException e) {
             messageLabel.setText(e.getMessage());
+            LOGGER.severe("Login failed: " + e.getMessage());
         }
     }//GEN-LAST:event_btnLoginActionPerformed
 
