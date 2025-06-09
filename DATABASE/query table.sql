@@ -6,13 +6,11 @@ USE db_appmakanan;
 CREATE TABLE User (
     id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(100) NOT NULL UNIQUE,
-    password VARCHAR(100) NOT NULL,
+    password VARCHAR(255) NOT NULL,
     role ENUM('admin', 'customer') NOT NULL,
     ewalletBalance DOUBLE DEFAULT 0.0,
     rekeningBalance DOUBLE DEFAULT 0.0
 );
-ALTER TABLE user MODIFY password VARCHAR(255) NOT NULL;
-select * from user;
 
 -- 3. Tabel Restaurant
 CREATE TABLE Restaurant (
