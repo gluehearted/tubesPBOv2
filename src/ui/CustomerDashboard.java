@@ -5,7 +5,16 @@
 package ui;
 
 import model.User;
-
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import service.AuthService;
+import model.User;
+import exception.AuthenticationException;
+import exception.DatabaseException;
+import db.DatabaseConnection;
+import java.sql.Connection;
+import java.util.logging.Logger;
 /**
  *
  * @author Gabriel Prakosa A
@@ -36,7 +45,6 @@ public class CustomerDashboard extends javax.swing.JPanel {
         lblDashboardCustomer = new javax.swing.JLabel();
         btnPesanMakanan = new javax.swing.JButton();
         btnKeranjangPesanan = new javax.swing.JButton();
-        btnTopUpEwallet = new javax.swing.JButton();
         btnLogout = new javax.swing.JButton();
 
         lblDashboardCustomer.setText("Halaman Dashboard Customer");
@@ -52,13 +60,6 @@ public class CustomerDashboard extends javax.swing.JPanel {
         btnKeranjangPesanan.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnKeranjangPesananActionPerformed(evt);
-            }
-        });
-
-        btnTopUpEwallet.setText("Top Up E-wallet");
-        btnTopUpEwallet.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnTopUpEwalletActionPerformed(evt);
             }
         });
 
@@ -83,15 +84,11 @@ public class CustomerDashboard extends javax.swing.JPanel {
                         .addComponent(btnPesanMakanan)
                         .addGap(141, 141, 141))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(6, 6, 6)
-                                .addComponent(btnTopUpEwallet))
-                            .addComponent(btnKeranjangPesanan))
-                        .addGap(133, 133, 133))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addComponent(btnLogout)
-                        .addGap(32, 32, 32))))
+                        .addGap(32, 32, 32))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(btnKeranjangPesanan)
+                        .addGap(132, 132, 132))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -100,11 +97,9 @@ public class CustomerDashboard extends javax.swing.JPanel {
                 .addComponent(lblDashboardCustomer)
                 .addGap(18, 18, 18)
                 .addComponent(btnPesanMakanan)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGap(18, 18, 18)
                 .addComponent(btnKeranjangPesanan)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(btnTopUpEwallet)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 82, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 111, Short.MAX_VALUE)
                 .addComponent(btnLogout)
                 .addGap(21, 21, 21))
         );
@@ -118,10 +113,6 @@ public class CustomerDashboard extends javax.swing.JPanel {
         // TODO add your handling code here:
     }//GEN-LAST:event_btnKeranjangPesananActionPerformed
 
-    private void btnTopUpEwalletActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTopUpEwalletActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_btnTopUpEwalletActionPerformed
-
     private void btnLogoutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLogoutActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_btnLogoutActionPerformed
@@ -131,7 +122,6 @@ public class CustomerDashboard extends javax.swing.JPanel {
     private javax.swing.JButton btnKeranjangPesanan;
     private javax.swing.JButton btnLogout;
     private javax.swing.JButton btnPesanMakanan;
-    private javax.swing.JButton btnTopUpEwallet;
     private javax.swing.JLabel lblDashboardCustomer;
     // End of variables declaration//GEN-END:variables
 }
