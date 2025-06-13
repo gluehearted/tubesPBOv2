@@ -17,7 +17,7 @@ public class MenuItemDAO {
     public List<MenuItem> getMenuItemsByRestaurant(int restaurantId) throws DatabaseException {
         List<MenuItem> menuItems = new ArrayList<>();
         String sql = "SELECT m.id, m.name, m.price, r.id AS restaurant_id, r.name AS restaurant_name " +
-                     "FROM MenuItem m JOIN Restaurant r ON m.restaurant_id = r.id " +
+                     "FROM MenuItems m JOIN Restaurant r ON m.restaurant_id = r.id " +
                      "WHERE m.restaurant_id = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, restaurantId);
@@ -34,7 +34,7 @@ public class MenuItemDAO {
     }
 
     public void addMenuItem(MenuItem item) throws DatabaseException {
-        String sql = "INSERT INTO MenuItem (name, price, restaurant_id) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO MenuItems (name, price, restaurant_id) VALUES (?, ?, ?)";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, item.getName());
             stmt.setDouble(2, item.getPrice());

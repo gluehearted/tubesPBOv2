@@ -14,7 +14,7 @@ public class UserDAO {
     }
 
     public User findByUsername(String username) throws DatabaseException {
-        String query = "SELECT * FROM User WHERE username = ?";
+        String query = "SELECT * FROM Users WHERE username = ?";
         try (PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, username);
             ResultSet rs = stmt.executeQuery();
@@ -35,7 +35,7 @@ public class UserDAO {
     }
 
     public void save(User user) throws DatabaseException {
-        String query = "INSERT INTO User (username, password, role, ewalletBalance, rekeningBalance) VALUES (?, ?, ?, ?, ?)";
+        String query = "INSERT INTO Users (username, password, role, ewalletBalance, rekeningBalance) VALUES (?, ?, ?, ?, ?)";
         try (PreparedStatement stmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setString(1, user.getUsername());
             stmt.setString(2, user.getPassword());
@@ -68,7 +68,7 @@ public class UserDAO {
             throw new RegistrationException("Role harus 'customer' untuk registrasi pelanggan");
         }
         save(user);
-        String cartSql = "INSERT INTO Cart (customer_id) VALUES (?)";
+        String cartSql = "INSERT INTO Carts (customer_id) VALUES (?)";
         try (PreparedStatement stmt = conn.prepareStatement(cartSql)) {
             stmt.setInt(1, user.getId());
             stmt.executeUpdate();

@@ -4,7 +4,6 @@ import model.Order;
 import model.MenuItem;
 import exception.DatabaseException;
 import java.sql.*;
-import java.util.List;
 
 public class OrderDAO {
     private Connection conn;
@@ -14,7 +13,7 @@ public class OrderDAO {
     }
 
     public void insert(Order order) throws DatabaseException {
-        String sql = "INSERT INTO `Order` (customer_id, totalAmount, payment_method) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO `Orders` (customer_id, totalAmount, payment_method) VALUES (?, ?, ?)";
         try (PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setInt(1, order.getUser().getId());
             stmt.setDouble(2, order.getTotalAmount());
@@ -25,7 +24,7 @@ public class OrderDAO {
             if (generatedKeys.next()) {
                 int orderId = generatedKeys.getInt(1);
                 for (MenuItem item : order.getItems()) {
-                    String detailSql = "INSERT INTO Order_MenuItem (order_id, menu_item_id, quantity) VALUES (?, ?, ?)";
+                    String detailSql = "INSERT INTO Order_MenuItems (order_id, menu_item_id, quantity) VALUES (?, ?, ?)";
                     try (PreparedStatement detailStmt = conn.prepareStatement(detailSql)) {
                         detailStmt.setInt(1, orderId);
                         detailStmt.setInt(2, item.getId());

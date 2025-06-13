@@ -15,7 +15,7 @@ public class CartDAO {
     }
 
     public void addToCart(int customerId, int menuItemId, int quantity) throws DatabaseException {
-        String sql = "INSERT INTO Cart_MenuItem (cart_id, menu_item_id, quantity) " +
+        String sql = "INSERT INTO Cart_MenuItems (cart_id, menu_item_id, quantity) " +
                      "VALUES ((SELECT id FROM Cart WHERE customer_id = ?), ?, ?) " +
                      "ON DUPLICATE KEY UPDATE quantity = quantity + ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -30,7 +30,7 @@ public class CartDAO {
     }
 
     public void removeFromCart(int customerId, int menuItemId) throws DatabaseException {
-        String sql = "DELETE FROM Cart_MenuItem WHERE cart_id = (SELECT id FROM Cart WHERE customer_id = ?) AND menu_item_id = ?";
+        String sql = "DELETE FROM Cart_MenuItems WHERE cart_id = (SELECT id FROM Cart WHERE customer_id = ?) AND menu_item_id = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, customerId);
             stmt.setInt(2, menuItemId);
@@ -43,10 +43,10 @@ public class CartDAO {
     public List<MenuItem> getCartItems(int customerId) throws DatabaseException {
         List<MenuItem> items = new ArrayList<>();
         String sql = "SELECT m.id, m.name, m.price, m.restaurant_id, r.name AS restaurant_name, cm.quantity " +
-                     "FROM Cart_MenuItem cm " +
+                     "FROM Cart_MenuItems cm " +
                      "JOIN Cart c ON cm.cart_id = c.id " +
-                     "JOIN MenuItem m ON cm.menu_item_id = m.id " +
-                     "JOIN Restaurant r ON m.restaurant_id = r.id " +
+                     "JOIN MenuItems m ON cm.menu_item_id = m.id " +
+                     "JOIN Restaurants r ON m.restaurant_id = r.id " +
                      "WHERE c.customer_id = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, customerId);
@@ -64,7 +64,7 @@ public class CartDAO {
     }
 
     public void clearCart(int customerId) throws DatabaseException {
-        String sql = "DELETE FROM Cart_MenuItem WHERE cart_id = (SELECT id FROM Cart WHERE customer_id = ?)";
+        String sql = "DELETE FROM Cart_MenuItems WHERE cart_id = (SELECT id FROM Cart WHERE customer_id = ?)";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, customerId);
             stmt.executeUpdate();

@@ -15,7 +15,7 @@ public class RestaurantDAO {
 
     public List<Restaurant> getAllRestaurants() throws DatabaseException {
         List<Restaurant> restaurants = new ArrayList<>();
-        String sql = "SELECT * FROM Restaurant";
+        String sql = "SELECT * FROM Restaurants";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
@@ -28,7 +28,7 @@ public class RestaurantDAO {
     }
 
     public void addRestaurant(Restaurant restaurant) throws DatabaseException {
-        String sql = "INSERT INTO Restaurant (name) VALUES (?)";
+        String sql = "INSERT INTO Restaurants (name) VALUES (?)";
         try (PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setString(1, restaurant.getName());
             stmt.executeUpdate();
