@@ -4,6 +4,7 @@ import java.util.logging.Logger;
 import service.AuthService;
 import exception.DatabaseException;
 import javax.swing.JOptionPane;
+import model.User;
 
 /**
  * Controller untuk mengelola operasi CRUD akun customer.
@@ -14,6 +15,10 @@ public class UserController {
 
     public UserController(AuthService authService) {
         this.authService = authService;
+    }
+
+    public User getUserByUsername(String username) throws DatabaseException {
+        return authService.getUserByUsername(username);
     }
 
     public void updateCustomer(String username, String password, double ewalletBalance, double rekeningBalance) throws DatabaseException {

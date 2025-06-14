@@ -18,7 +18,7 @@ public class AdminService {
     }
 
     public void addRestaurant(Restaurant restaurant) throws DatabaseException {
-        restaurantDAO.addRestaurant(restaurant);
+        restaurantDAO.save(restaurant);
     }
 
     public void addMenuItem(MenuItem menuItem) throws DatabaseException {

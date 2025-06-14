@@ -4,13 +4,14 @@
 package service;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import org.mindrot.jbcrypt.BCrypt;
 import model.User;
 import DAO.UserDAO;
 import exception.AuthenticationException;
 import exception.RegistrationException;
 import exception.DatabaseException;
-import java.sql.SQLException;
 
 public class AuthService {
     private final UserDAO userDao;
@@ -70,5 +71,14 @@ public class AuthService {
         user.setEwalletBalance(ewalletBalance);
         user.setRekeningBalance(rekeningBalance);
         userDao.update(user);
+    }
+
+    // In AuthService.java
+    public void updateUser(User user) throws DatabaseException {
+        userDao.update(user);
+    }
+
+    public User getUserByUsername(String username) throws DatabaseException {
+        return userDao.findByUsername(username);
     }
 }

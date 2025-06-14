@@ -58,20 +58,6 @@ public class RestaurantDAO {
         return restaurants;
     }
 
-    public void addRestaurant(Restaurant restaurant) throws DatabaseException {
-        String sql = "INSERT INTO Restaurants (name) VALUES (?)";
-        try (PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            stmt.setString(1, restaurant.getName());
-            stmt.executeUpdate();
-            ResultSet rs = stmt.getGeneratedKeys();
-            if (rs.next()) {
-                restaurant.setId(rs.getInt(1));
-            }
-        } catch (SQLException e) {
-            throw new DatabaseException("Gagal menambahkan restoran", e);
-        }
-    }
-
     public List<MenuItem> getMenuItemsByRestaurant(int restaurantId) throws DatabaseException {
         List<MenuItem> menuItems = new ArrayList<>();
         String query = "SELECT * FROM MenuItems WHERE restaurant_id = ?";

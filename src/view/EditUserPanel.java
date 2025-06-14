@@ -27,12 +27,12 @@ public class EditUserPanel extends javax.swing.JPanel {
         this.cardLayout = cardLayout;
         try {
             this.userController = new UserController(new service.AuthService(DatabaseConnection.getConnection()));
+            initComponents();
         } catch (DatabaseException e) {
             LOGGER.severe("Failed to initialize UserController: " + e.getMessage());
             JOptionPane.showMessageDialog(this, "Error: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
             throw new RuntimeException("Failed to initialize EditUserPanel", e);
         }
-        initComponents();
     }
 
     /**
@@ -59,9 +59,25 @@ public class EditUserPanel extends javax.swing.JPanel {
 
         jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Halaman Edit Akun", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.DEFAULT_POSITION));
 
+        usernameField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                usernameFieldActionPerformed(evt);
+            }
+        });
+
         btnSimpanPerubahan.setText("Simpan");
+        btnSimpanPerubahan.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSimpanPerubahanActionPerformed(evt);
+            }
+        });
 
         btnDashboardAdmin.setText("Kembali");
+        btnDashboardAdmin.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDashboardAdminActionPerformed(evt);
+            }
+        });
 
         jLabel1.setText("Nama Akun :");
 
@@ -75,10 +91,6 @@ public class EditUserPanel extends javax.swing.JPanel {
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(20, 20, 20)
-                .addComponent(btnDashboardAdmin)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                 .addGap(93, 93, 93)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -101,6 +113,10 @@ public class EditUserPanel extends javax.swing.JPanel {
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                         .addComponent(jLabel5)
                         .addGap(134, 134, 134))))
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGap(16, 16, 16)
+                .addComponent(btnDashboardAdmin)
+                .addGap(0, 0, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -125,9 +141,9 @@ public class EditUserPanel extends javax.swing.JPanel {
                     .addComponent(jLabel4))
                 .addGap(18, 18, 18)
                 .addComponent(btnSimpanPerubahan)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 30, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 32, Short.MAX_VALUE)
                 .addComponent(btnDashboardAdmin)
-                .addGap(18, 18, 18))
+                .addGap(16, 16, 16))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
@@ -147,6 +163,90 @@ public class EditUserPanel extends javax.swing.JPanel {
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    private void btnSimpanPerubahanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSimpanPerubahanActionPerformed
+        String username = usernameField.getText().trim();
+        if (username.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Nama akun tidak boleh kosong!", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        try {
+            // Load the user to get the latest state
+            User userToUpdate = userController.getUserByUsername(username);
+            if (userToUpdate == null) {
+                JOptionPane.showMessageDialog(this, "Pengguna tidak ditemukan!", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            String password = new String(passwordField.getPassword()).trim();
+            double ewalletBalance = Double.parseDouble(ewalletBalanceField.getText().trim());
+            double rekeningBalance = Double.parseDouble(rekeningBalanceField.getText().trim());
+
+            if (password.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Password tidak boleh kosong!", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            if (ewalletBalance < 0 || rekeningBalance < 0) {
+                JOptionPane.showMessageDialog(this, "Saldo tidak boleh negatif!", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            // Update the user object
+            userToUpdate.setPassword(password);
+            userToUpdate.setEwalletBalance(ewalletBalance);
+            userToUpdate.setRekeningBalance(rekeningBalance);
+            LOGGER.info("Before update - Username: " + userToUpdate.getUsername() + ", Ewallet: " + userToUpdate.getEwalletBalance() + ", Rekening: " + userToUpdate.getRekeningBalance());
+
+            // Update via UserController (which should use UserDAO)
+            userController.updateCustomer(userToUpdate.getUsername(), password, ewalletBalance, rekeningBalance);
+            LOGGER.info("After update - Username: " + userToUpdate.getUsername() + ", Ewallet: " + userToUpdate.getEwalletBalance() + ", Rekening: " + userToUpdate.getRekeningBalance());
+
+            // Reload to reflect database changes
+            loadUserData(username);
+            LOGGER.info("Reloaded - Username: " + (userToUpdate != null ? userToUpdate.getUsername() : "null") + ", Ewallet: " + (userToUpdate != null ? userToUpdate.getEwalletBalance() : 0) + ", Rekening: " + (userToUpdate != null ? userToUpdate.getRekeningBalance() : 0));
+            JOptionPane.showMessageDialog(this, "Akun berhasil diperbarui!", "Sukses", JOptionPane.INFORMATION_MESSAGE);
+        } catch (NumberFormatException e) {
+            LOGGER.warning("Invalid balance format: " + e.getMessage());
+            JOptionPane.showMessageDialog(this, "Saldo harus berupa angka!", "Error", JOptionPane.ERROR_MESSAGE);
+        } catch (DatabaseException e) {
+            LOGGER.severe("Failed to update user: " + e.getMessage());
+            JOptionPane.showMessageDialog(this, "Error: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }//GEN-LAST:event_btnSimpanPerubahanActionPerformed
+
+    private void btnDashboardAdminActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDashboardAdminActionPerformed
+        LOGGER.info("Kembali ke Halaman Dashboard Admin");
+        cardLayout.show(parentPanel, "AdminDashboard");
+    }//GEN-LAST:event_btnDashboardAdminActionPerformed
+
+    private void usernameFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_usernameFieldActionPerformed
+        String username = usernameField.getText().trim();
+        if (!username.isEmpty()) {
+            loadUserData(username);
+        }
+    }//GEN-LAST:event_usernameFieldActionPerformed
+
+    private void loadUserData(String username) {
+        try {
+            User user = userController.getUserByUsername(username);
+            if (user != null) {
+                usernameField.setText(user.getUsername()); // Sync username
+                passwordField.setText(user.getPassword()); // Security concern
+                ewalletBalanceField.setText(String.valueOf(user.getEwalletBalance()));
+                rekeningBalanceField.setText(String.valueOf(user.getRekeningBalance()));
+                LOGGER.info("Loaded user data for: " + username + ", Ewallet: " + user.getEwalletBalance() + ", Rekening: " + user.getRekeningBalance());
+            } else {
+                passwordField.setText("");
+                ewalletBalanceField.setText("");
+                rekeningBalanceField.setText("");
+                LOGGER.warning("User not found: " + username);
+            }
+        } catch (DatabaseException e) {
+            LOGGER.severe("Failed to load user data: " + e.getMessage());
+            JOptionPane.showMessageDialog(this, "Error: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

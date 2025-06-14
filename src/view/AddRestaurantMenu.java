@@ -9,8 +9,10 @@ import javax.swing.JPanel;
 import controller.RestaurantMenuController;
 import exception.DatabaseException;
 import db.DatabaseConnection;
+import java.util.List;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
+import model.Restaurant;
 
 /**
  *
@@ -27,12 +29,13 @@ public class AddRestaurantMenu extends javax.swing.JPanel {
         this.cardLayout = cardLayout;
         try {
             this.controller = new RestaurantMenuController(new service.RestaurantService(DatabaseConnection.getConnection()));
+            initComponents();
+            restaurantComboBoxActionPerformed(null);
         } catch (DatabaseException e) {
             LOGGER.severe("Failed to initialize RestaurantMenuController: " + e.getMessage());
             JOptionPane.showMessageDialog(this, "Error: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
             throw new RuntimeException("Failed to initialize AddRestaurantMenu", e);
         }
-        initComponents();
     }
 
     /**
@@ -47,14 +50,14 @@ public class AddRestaurantMenu extends javax.swing.JPanel {
         jPanel1 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         tambahRestaurantField = new javax.swing.JTextField();
-        jButton1 = new javax.swing.JButton();
-        jComboBox1 = new javax.swing.JComboBox<>();
+        btntambahRestaurant = new javax.swing.JButton();
+        restaurantComboBox = new javax.swing.JComboBox<>();
         tambahMenuField = new javax.swing.JTextField();
         tambahHargaField = new javax.swing.JTextField();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
-        jButton2 = new javax.swing.JButton();
-        jButton3 = new javax.swing.JButton();
+        btntambahMenu = new javax.swing.JButton();
+        btnKembali = new javax.swing.JButton();
 
         jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Halaman Menambah Menu", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.DEFAULT_POSITION));
 
@@ -66,9 +69,18 @@ public class AddRestaurantMenu extends javax.swing.JPanel {
             }
         });
 
-        jButton1.setText("Tambah");
+        btntambahRestaurant.setText("Tambah");
+        btntambahRestaurant.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btntambahRestaurantActionPerformed(evt);
+            }
+        });
 
-        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        restaurantComboBox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                restaurantComboBoxActionPerformed(evt);
+            }
+        });
 
         tambahMenuField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -80,9 +92,19 @@ public class AddRestaurantMenu extends javax.swing.JPanel {
 
         jLabel3.setText("HARGA");
 
-        jButton2.setText("Tambah");
+        btntambahMenu.setText("Tambah");
+        btntambahMenu.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btntambahMenuActionPerformed(evt);
+            }
+        });
 
-        jButton3.setText("Kembali ke Dashboard Admin");
+        btnKembali.setText("Kembali");
+        btnKembali.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnKembaliActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -98,21 +120,22 @@ public class AddRestaurantMenu extends javax.swing.JPanel {
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(0, 0, Short.MAX_VALUE)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jButton2)
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addComponent(jLabel2)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(tambahMenuField, javax.swing.GroupLayout.PREFERRED_SIZE, 133, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(jButton1)
-                            .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 115, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(btntambahMenu)
+                            .addComponent(btntambahRestaurant)
                             .addGroup(jPanel1Layout.createSequentialGroup()
                                 .addComponent(jLabel3)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(tambahHargaField, javax.swing.GroupLayout.PREFERRED_SIZE, 133, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                                .addComponent(tambahHargaField, javax.swing.GroupLayout.PREFERRED_SIZE, 133, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addComponent(jLabel2)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(restaurantComboBox, javax.swing.GroupLayout.Alignment.TRAILING, 0, 133, Short.MAX_VALUE)
+                                    .addComponent(tambahMenuField, javax.swing.GroupLayout.Alignment.TRAILING))))))
                 .addGap(69, 69, 69))
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jButton3)
+                .addComponent(btnKembali)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
@@ -123,9 +146,9 @@ public class AddRestaurantMenu extends javax.swing.JPanel {
                     .addComponent(tambahRestaurantField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel1))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButton1)
+                .addComponent(btntambahRestaurant)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(restaurantComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(tambahMenuField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -135,9 +158,9 @@ public class AddRestaurantMenu extends javax.swing.JPanel {
                     .addComponent(tambahHargaField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel3))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jButton2)
+                .addComponent(btntambahMenu)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jButton3)
+                .addComponent(btnKembali)
                 .addContainerGap(8, Short.MAX_VALUE))
         );
 
@@ -167,16 +190,86 @@ public class AddRestaurantMenu extends javax.swing.JPanel {
         // TODO add your handling code here:
     }//GEN-LAST:event_tambahMenuFieldActionPerformed
 
+    private void btntambahRestaurantActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btntambahRestaurantActionPerformed
+        String name = tambahRestaurantField.getText().trim();
+        if (name.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Nama restaurant tidak boleh kosong!", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        controller.addRestaurant(name);
+        tambahRestaurantField.setText("");
+        restaurantComboBoxActionPerformed(null); // Refresh combobox with new restaurant
+    }//GEN-LAST:event_btntambahRestaurantActionPerformed
+
+    private void btntambahMenuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btntambahMenuActionPerformed
+        try {
+            String name = tambahMenuField.getText().trim();
+            double price = Double.parseDouble(tambahHargaField.getText().trim());
+            String selectedRestaurantName = (String) restaurantComboBox.getSelectedItem();
+            LOGGER.info("Selected restaurant name: " + selectedRestaurantName);
+
+            if (selectedRestaurantName == null) {
+                JOptionPane.showMessageDialog(this, "Pilih restaurant terlebih dahulu!", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            // Map the selected name to a Restaurant ID
+            List<Restaurant> restaurants = controller.getAllRestaurants();
+            Restaurant found = restaurants.stream()
+                .filter(r -> r.getName().equalsIgnoreCase(selectedRestaurantName))
+                .findFirst()
+                .orElse(null);
+            if (found == null) {
+                JOptionPane.showMessageDialog(this, "Restaurant tidak ditemukan!", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            int restaurantId = found.getId();
+
+            // Check for duplicate menu item
+            boolean isDuplicate = controller.getMenuItemsByRestaurant(restaurantId).stream()
+                .anyMatch(menuItem -> menuItem.getName().equalsIgnoreCase(name));
+            if (isDuplicate) {
+                JOptionPane.showMessageDialog(this, "Menu dengan nama ini sudah ada di restaurant ini!", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            controller.addMenuItem(name, price, restaurantId);
+            tambahMenuField.setText("");
+            tambahHargaField.setText("");
+            JOptionPane.showMessageDialog(this, "Menu berhasil ditambahkan!", "Sukses", JOptionPane.INFORMATION_MESSAGE);
+        } catch (NumberFormatException e) {
+            LOGGER.warning("Invalid price format: " + e.getMessage());
+            JOptionPane.showMessageDialog(this, "Harga harus berupa angka!", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }//GEN-LAST:event_btntambahMenuActionPerformed
+
+    private void btnKembaliActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnKembaliActionPerformed
+        LOGGER.info("Kembali ke Halaman Dashboard Admin");
+        cardLayout.show(parentPanel, "AdminDashboard");
+    }//GEN-LAST:event_btnKembaliActionPerformed
+
+    private void restaurantComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_restaurantComboBoxActionPerformed
+        List<Restaurant> restaurants = controller.getAllRestaurants();
+        restaurantComboBox.removeAllItems();
+        for (Restaurant restaurant : restaurants) {
+            restaurantComboBox.addItem(restaurant.getName());
+        }
+        if (!restaurants.isEmpty()) {
+            restaurantComboBox.setSelectedIndex(0);
+        }
+        LOGGER.info("Populated restaurantComboBox with " + restaurants.size() + " items.");
+    }//GEN-LAST:event_restaurantComboBoxActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
-    private javax.swing.JButton jButton3;
-    private javax.swing.JComboBox<String> jComboBox1;
+    private javax.swing.JButton btnKembali;
+    private javax.swing.JButton btntambahMenu;
+    private javax.swing.JButton btntambahRestaurant;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JComboBox<String> restaurantComboBox;
     private javax.swing.JTextField tambahHargaField;
     private javax.swing.JTextField tambahMenuField;
     private javax.swing.JTextField tambahRestaurantField;
