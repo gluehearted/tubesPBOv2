@@ -11,6 +11,7 @@ import controller.UserController;
 import model.User;
 import exception.DatabaseException;
 import db.DatabaseConnection;
+import service.AuthService;
 
 /**
  * Panel untuk mengedit akun customer.
@@ -26,14 +27,15 @@ public class EditUserPanel extends javax.swing.JPanel {
         this.parentPanel = parentPanel;
         this.cardLayout = cardLayout;
         try {
-            this.userController = new UserController(new service.AuthService(DatabaseConnection.getConnection()));
+            this.userController = new UserController(new AuthService(DatabaseConnection.getConnection()));
             initComponents();
         } catch (DatabaseException e) {
             LOGGER.severe("Failed to initialize UserController: " + e.getMessage());
             JOptionPane.showMessageDialog(this, "Error: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
             throw new RuntimeException("Failed to initialize EditUserPanel", e);
         }
-    }
+    }    
+
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -166,49 +168,49 @@ public class EditUserPanel extends javax.swing.JPanel {
 
     private void btnSimpanPerubahanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSimpanPerubahanActionPerformed
         String username = usernameField.getText().trim();
+        String password = new String(passwordField.getPassword()).trim();
+        String ewalletStr = ewalletBalanceField.getText().trim();
+        String rekeningStr = rekeningBalanceField.getText().trim();
+
         if (username.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Nama akun tidak boleh kosong!", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
+        if (password.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Password tidak boleh kosong!", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        if (ewalletStr.isEmpty() || rekeningStr.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Saldo tidak boleh kosong!", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
+        double ewalletBalance, rekeningBalance;
+        try {
+            ewalletBalance = Double.parseDouble(ewalletStr);
+            rekeningBalance = Double.parseDouble(rekeningStr);
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Saldo harus berupa angka!", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        if (ewalletBalance < 0 || rekeningBalance < 0) {
+            JOptionPane.showMessageDialog(this, "Saldo tidak boleh negatif!", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
 
         try {
-            // Load the user to get the latest state
             User userToUpdate = userController.getUserByUsername(username);
             if (userToUpdate == null) {
                 JOptionPane.showMessageDialog(this, "Pengguna tidak ditemukan!", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
-
-            String password = new String(passwordField.getPassword()).trim();
-            double ewalletBalance = Double.parseDouble(ewalletBalanceField.getText().trim());
-            double rekeningBalance = Double.parseDouble(rekeningBalanceField.getText().trim());
-
-            if (password.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Password tidak boleh kosong!", "Error", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-            if (ewalletBalance < 0 || rekeningBalance < 0) {
-                JOptionPane.showMessageDialog(this, "Saldo tidak boleh negatif!", "Error", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            // Update the user object
             userToUpdate.setPassword(password);
             userToUpdate.setEwalletBalance(ewalletBalance);
             userToUpdate.setRekeningBalance(rekeningBalance);
-            LOGGER.info("Before update - Username: " + userToUpdate.getUsername() + ", Ewallet: " + userToUpdate.getEwalletBalance() + ", Rekening: " + userToUpdate.getRekeningBalance());
 
-            // Update via UserController (which should use UserDAO)
-            userController.updateCustomer(userToUpdate.getUsername(), password, ewalletBalance, rekeningBalance);
-            LOGGER.info("After update - Username: " + userToUpdate.getUsername() + ", Ewallet: " + userToUpdate.getEwalletBalance() + ", Rekening: " + userToUpdate.getRekeningBalance());
-
-            // Reload to reflect database changes
+            userController.updateCustomer(username, password, ewalletBalance, rekeningBalance);
             loadUserData(username);
-            LOGGER.info("Reloaded - Username: " + (userToUpdate != null ? userToUpdate.getUsername() : "null") + ", Ewallet: " + (userToUpdate != null ? userToUpdate.getEwalletBalance() : 0) + ", Rekening: " + (userToUpdate != null ? userToUpdate.getRekeningBalance() : 0));
             JOptionPane.showMessageDialog(this, "Akun berhasil diperbarui!", "Sukses", JOptionPane.INFORMATION_MESSAGE);
-        } catch (NumberFormatException e) {
-            LOGGER.warning("Invalid balance format: " + e.getMessage());
-            JOptionPane.showMessageDialog(this, "Saldo harus berupa angka!", "Error", JOptionPane.ERROR_MESSAGE);
         } catch (DatabaseException e) {
             LOGGER.severe("Failed to update user: " + e.getMessage());
             JOptionPane.showMessageDialog(this, "Error: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
@@ -231,16 +233,14 @@ public class EditUserPanel extends javax.swing.JPanel {
         try {
             User user = userController.getUserByUsername(username);
             if (user != null) {
-                usernameField.setText(user.getUsername()); // Sync username
-                passwordField.setText(user.getPassword()); // Security concern
+                usernameField.setText(user.getUsername());
+                passwordField.setText(user.getPassword());
                 ewalletBalanceField.setText(String.valueOf(user.getEwalletBalance()));
                 rekeningBalanceField.setText(String.valueOf(user.getRekeningBalance()));
-                LOGGER.info("Loaded user data for: " + username + ", Ewallet: " + user.getEwalletBalance() + ", Rekening: " + user.getRekeningBalance());
             } else {
                 passwordField.setText("");
                 ewalletBalanceField.setText("");
                 rekeningBalanceField.setText("");
-                LOGGER.warning("User not found: " + username);
             }
         } catch (DatabaseException e) {
             LOGGER.severe("Failed to load user data: " + e.getMessage());

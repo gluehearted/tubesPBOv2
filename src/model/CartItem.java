@@ -1,26 +1,20 @@
 package model;
 
 public class CartItem {
-    private String name;
+    private MenuItem menuItem;
     private int quantity;
-    private double price;
-
-    public CartItem(String name, int quantity, double price) {
-        this.name = name;
+    
+    public CartItem(MenuItem menuItem, int quantity) {
+        this.menuItem = menuItem;
         this.quantity = quantity;
-        this.price = price;
     }
-
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
-
+    
+    public double getSubtotal() {
+        return menuItem.getPrice() * quantity;
+    }
+    
+    // Getters and setters
+    public MenuItem getMenuItem() { return menuItem; }
     public int getQuantity() { return quantity; }
     public void setQuantity(int quantity) { this.quantity = quantity; }
-
-    public double getPrice() { return price; }
-    public void setPrice(double price) { this.price = price; }
-
-    public double getSubtotal() {
-        return price * quantity;
-    }
 }

@@ -7,6 +7,10 @@ package view;
 import model.User;
 import javax.swing.*;
 import java.util.logging.Logger;
+import service.CartService;
+import java.awt.*;
+import java.awt.FlowLayout;
+import java.awt.BorderLayout;
 
 /**
  * Dashboard untuk pengguna dengan role customer.
@@ -16,11 +20,78 @@ public class CustomerDashboard extends javax.swing.JPanel {
     private static final Logger LOGGER = Logger.getLogger(CustomerDashboard.class.getName());
     private final MainFrame mainFrame;
     private final User user;
+    private CartService cartService;
+    private JLabel cartBadgeLabel;
+    private JLabel lblBalance; // Added for balance display
 
     public CustomerDashboard(MainFrame mainFrame, User user) {
         this.mainFrame = mainFrame;
         this.user = user;
+        this.cartService = new CartService();
         initComponents();
+        initializeCartBadge();
+        initializeBalanceLabel(); // Initialize balance label
+        updateCartBadge();
+        refreshUserBalance(); // Update balance display
+        
+        LOGGER.info("CustomerDashboard initialized for user: " + user.getUsername());
+    }
+
+    private void initializeCartBadge() {
+        cartBadgeLabel = new JLabel();
+        cartBadgeLabel.setOpaque(true);
+        cartBadgeLabel.setBackground(Color.RED);
+        cartBadgeLabel.setForeground(Color.WHITE);
+        cartBadgeLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        cartBadgeLabel.setBorder(BorderFactory.createEmptyBorder(2, 6, 2, 6));
+        cartBadgeLabel.setFont(new Font("Arial", Font.BOLD, 10));
+        cartBadgeLabel.setVisible(false);
+        
+        btnKeranjangPesanan.setLayout(new BorderLayout());
+        JPanel badgePanel = new JPanel();
+        badgePanel.setLayout(new FlowLayout(FlowLayout.RIGHT, 0, 0));
+        badgePanel.setOpaque(false);
+        badgePanel.add(cartBadgeLabel);
+        btnKeranjangPesanan.add(badgePanel, BorderLayout.NORTH);
+    }
+
+    private void initializeBalanceLabel() {
+        lblBalance = new JLabel();
+        lblBalance.setFont(new Font("Arial", Font.PLAIN, 12));
+        lblBalance.setHorizontalAlignment(SwingConstants.CENTER);
+        jPanel1.add(lblBalance); // Add to panel
+    }
+
+    public void updateCartBadge() {
+        SwingUtilities.invokeLater(() -> {
+            try {
+                int itemCount = cartService.getCartForCustomer(user.getId()).getItems().size();
+                if (itemCount > 0) {
+                    cartBadgeLabel.setText(String.valueOf(itemCount));
+                    cartBadgeLabel.setVisible(true);
+                } else {
+                    cartBadgeLabel.setVisible(false);
+                }
+                btnKeranjangPesanan.repaint();
+            } catch (Exception e) {
+                LOGGER.warning("Failed to update cart badge: " + e.getMessage());
+                cartBadgeLabel.setVisible(false);
+            }
+        });
+    }
+
+    public void refreshUserBalance() {
+        SwingUtilities.invokeLater(() -> {
+            try {
+                lblBalance.setText(String.format("Saldo E-Wallet: Rp %.0f | Saldo Rekening: Rp %.0f", 
+                        user.getEwalletBalance(), user.getRekeningBalance()));
+                lblBalance.repaint();
+                
+                LOGGER.info("User balance refreshed for: " + user.getUsername());
+            } catch (Exception e) {
+                LOGGER.warning("Failed to refresh user balance: " + e.getMessage());
+            }
+        });
     }
 
     /**
@@ -113,18 +184,19 @@ public class CustomerDashboard extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnPesanMakananActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPesanMakananActionPerformed
-        // TODO add your handling code here:
+        LOGGER.info("Pesan Makanan button clicked for user: " + user.getUsername());
+        mainFrame.showPilihMakananPanel(user);
     }//GEN-LAST:event_btnPesanMakananActionPerformed
 
     private void btnKeranjangPesananActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnKeranjangPesananActionPerformed
-        // TODO add your handling code here:
+        LOGGER.info("Keranjang Pesanan button clicked for user: " + user.getUsername());
+        mainFrame.showKeranjangPanel(user);
     }//GEN-LAST:event_btnKeranjangPesananActionPerformed
 
     private void btnLogoutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLogoutActionPerformed
         LOGGER.info("Logout button clicked for user: " + user.getUsername());
         mainFrame.showLoginPanel();
     }//GEN-LAST:event_btnLogoutActionPerformed
-
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnKeranjangPesanan;

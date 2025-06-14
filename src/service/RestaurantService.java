@@ -5,6 +5,7 @@ import java.util.List;
 import model.Restaurant;
 import model.MenuItem;
 import DAO.RestaurantDAO;
+import DAO.RestaurantDAOImpl;
 import exception.DatabaseException;
 
 /**
@@ -14,7 +15,7 @@ public class RestaurantService {
     private final RestaurantDAO restaurantDAO;
 
     public RestaurantService(Connection connection) {
-        this.restaurantDAO = new RestaurantDAO(connection);
+        this.restaurantDAO = new RestaurantDAOImpl(connection);
     }
 
     public void addRestaurant(String name) throws DatabaseException {

@@ -34,6 +34,27 @@ public class UserDAO {
         return null;
     }
 
+    public User findById(int id) throws DatabaseException {
+        String query = "SELECT * FROM Users WHERE id = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setInt(1, id);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return new User(
+                    rs.getInt("id"),
+                    rs.getString("username"),
+                    rs.getString("password"),
+                    rs.getString("role"),
+                    rs.getDouble("ewalletBalance"),
+                    rs.getDouble("rekeningBalance")
+                );
+            }
+        } catch (SQLException e) {
+            throw new DatabaseException("Gagal mencari pengguna", e);
+        }
+        return null;
+    }
+
     public void save(User user) throws DatabaseException {
         String query = "INSERT INTO Users (username, password, role, ewalletBalance, rekeningBalance) VALUES (?, ?, ?, ?, ?)";
         try (PreparedStatement stmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {

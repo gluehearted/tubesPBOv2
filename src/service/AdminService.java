@@ -2,6 +2,9 @@ package service;
 
 import DAO.RestaurantDAO;
 import DAO.MenuItemDAO;
+import DAO.MenuItemDAOImpl;
+import DAO.RestaurantDAO;
+import DAO.RestaurantDAOImpl;
 import model.Restaurant;
 import model.MenuItem;
 import exception.DatabaseException;
@@ -13,8 +16,8 @@ public class AdminService {
     private MenuItemDAO menuItemDAO;
 
     public AdminService(Connection conn) {
-        this.restaurantDAO = new RestaurantDAO(conn);
-        this.menuItemDAO = new MenuItemDAO(conn);
+        this.restaurantDAO = new RestaurantDAOImpl(conn);
+        this.menuItemDAO = new MenuItemDAOImpl(conn);
     }
 
     public void addRestaurant(Restaurant restaurant) throws DatabaseException {

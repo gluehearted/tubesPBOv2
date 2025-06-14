@@ -5,7 +5,20 @@ import java.util.Iterator;
 import java.util.List;
 
 public class Cart<T extends MenuItem> {
+    private int id;
     private List<T> items = new ArrayList<>();
+
+    public Cart() {
+        this.id = 0;
+    }
+
+    public int getCartId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
 
     public void addItem(T item) {
         for (T i : items) {

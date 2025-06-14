@@ -4,17 +4,65 @@
  */
 package view;
 
+import model.User;
+import model.CartDTO;
+import model.CartItem;
+import javax.swing.*;
+import java.awt.*;
+import java.util.logging.Logger;
+import service.CartService;
+import javax.swing.table.DefaultTableModel;
+import DAO.CartDAO;
+import DAO.CartDAOImpl;
+
 /**
- *
- * @author Gabriel Prakosa A
+ * Panel untuk menampilkan dan mengelola keranjang belanja.
+ * Author: Gabriel Prakosa A
  */
 public class KeranjangPanel extends javax.swing.JPanel {
+    private static final Logger LOGGER = Logger.getLogger(KeranjangPanel.class.getName());
+    private final CardLayout cardLayout;
+    private final JPanel parentPanel;
+    private final User user;
+    private final CartService cartService;
+    private final CartDAO cartDAO;
 
-    /**
-     * Creates new form KeranjangPanel
-     */
-    public KeranjangPanel() {
+    public KeranjangPanel(JPanel parentPanel, CardLayout cardLayout, User user) {
+        this.parentPanel = parentPanel;
+        this.cardLayout = cardLayout;
+        this.user = user;
+        this.cartService = new CartService();
+        this.cartDAO = new CartDAOImpl();
         initComponents();
+        loadCartItems();
+    }
+
+    private void loadCartItems() {
+        try {
+            CartDTO cartDTO = cartService.getCartForCustomer(user.getId());
+            DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+            model.setRowCount(0);
+            double totalHarga = 0;
+            int totalJumlah = 0;
+
+            for (CartItem item : cartDTO.getItems()) {
+                double total = item.getQuantity() * item.getMenuItem().getPrice();
+                model.addRow(new Object[]{
+                    item.getMenuItem().getName(),
+                    item.getQuantity(),
+                    item.getMenuItem().getPrice(),
+                    total
+                });
+                totalHarga += total;
+                totalJumlah += item.getQuantity();
+            }
+
+            lblTotalHarga.setText("Total Harga: Rp " + String.format("%.0f", totalHarga));
+            lblJumlah.setText("Jumlah: " + totalJumlah);
+        } catch (Exception e) {
+            LOGGER.warning("Failed to load cart items: " + e.getMessage());
+            JOptionPane.showMessageDialog(this, "Gagal memuat keranjang: " + e.getMessage());
+        }
     }
 
     /**
@@ -90,18 +138,19 @@ public class KeranjangPanel extends javax.swing.JPanel {
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 366, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(15, 15, 15))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(btnHapus)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(btnCheckout)
-                        .addGap(33, 33, 33)
-                        .addComponent(lblTotalHarga)
-                        .addGap(95, 95, 95))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(btnKembali)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(lblJumlah)
-                        .addGap(103, 103, 103))))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(btnKembali)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(lblJumlah))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(btnHapus)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(btnCheckout)
+                                .addGap(33, 33, 33)
+                                .addComponent(lblTotalHarga)))
+                        .addGap(95, 95, 95))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -113,29 +162,67 @@ public class KeranjangPanel extends javax.swing.JPanel {
                     .addComponent(btnHapus)
                     .addComponent(lblTotalHarga)
                     .addComponent(btnCheckout))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(18, 18, 18)
-                        .addComponent(btnKembali))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(10, 10, 10)
-                        .addComponent(lblJumlah)))
-                .addContainerGap(23, Short.MAX_VALUE))
+                    .addComponent(btnKembali)
+                    .addComponent(lblJumlah))
+                .addContainerGap(29, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnHapusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnHapusActionPerformed
-        // TODO add your handling code here:
+        int selectedRow = jTable1.getSelectedRow();
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(this, "Pilih item untuk dihapus!");
+            return;
+        }
+        try {
+            CartDTO cartDTO = cartService.getCartForCustomer(user.getId());
+            CartItem item = cartDTO.getItems().get(selectedRow);
+            cartDAO.removeItemFromCart(user.getId(), item.getMenuItem().getId());
+            loadCartItems();
+            // Update cart badge
+            for (java.awt.Component comp : parentPanel.getComponents()) {
+                if (comp instanceof CustomerDashboard) {
+                    ((CustomerDashboard) comp).updateCartBadge();
+                    break;
+                }
+            }
+            JOptionPane.showMessageDialog(this, "Item berhasil dihapus dari keranjang!");
+        } catch (Exception e) {
+            LOGGER.warning("Failed to delete cart item: " + e.getMessage());
+            JOptionPane.showMessageDialog(this, "Gagal menghapus item: " + e.getMessage());
+        }
     }//GEN-LAST:event_btnHapusActionPerformed
 
     private void btnKembaliActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnKembaliActionPerformed
-        // TODO add your handling code here:
+        LOGGER.info("Kembali ke Halaman Dashboard Customer");
+        cardLayout.show(parentPanel, "CustomerDashboard");
     }//GEN-LAST:event_btnKembaliActionPerformed
 
     private void btnCheckoutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCheckoutActionPerformed
-        // TODO add your handling code here:
+        try {
+            CartDTO cartDTO = cartService.getCartForCustomer(user.getId());
+            if (cartDTO.getItems().isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Keranjang kosong!");
+                return;
+            }
+            // Placeholder for checkout logic (e.g., payment processing)
+            JOptionPane.showMessageDialog(this, "Checkout berhasil! (Implementasi pembayaran belum lengkap)");
+            cartDAO.clearCart(user.getId());
+            loadCartItems();
+            // Update cart badge
+            for (java.awt.Component comp : parentPanel.getComponents()) {
+                if (comp instanceof CustomerDashboard) {
+                    ((CustomerDashboard) comp).updateCartBadge();
+                    break;
+                }
+            }
+        } catch (Exception e) {
+            LOGGER.warning("Checkout failed: " + e.getMessage());
+            JOptionPane.showMessageDialog(this, "Checkout gagal: " + e.getMessage());
+        }
     }//GEN-LAST:event_btnCheckoutActionPerformed
-
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnCheckout;

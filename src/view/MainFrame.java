@@ -11,6 +11,8 @@ import view.CustomerDashboard;
 import view.AdminDashboard;
 import view.AddRestaurantMenu;
 import view.EditUserPanel;
+import view.PilihMakananPanel;
+import view.KeranjangPanel;
 
 /**
  * MainFrame: JFrame utama yang menampung semua panel dengan CardLayout
@@ -65,6 +67,8 @@ public class MainFrame extends javax.swing.JFrame {
             LOGGER.info("Switched to AdminDashboard.");
         } else if ("customer".equalsIgnoreCase(role)) {
             cardpanel.add(new CustomerDashboard(this, user), "CustomerDashboard");
+            cardpanel.add(new PilihMakananPanel(cardpanel, cardLayout, user), "PilihMakanan");
+            cardpanel.add(new KeranjangPanel(cardpanel, cardLayout, user), "Keranjang");
             cardLayout.show(cardpanel, "CustomerDashboard");
             LOGGER.info("Switched to CustomerDashboard.");
         } else {
@@ -76,28 +80,53 @@ public class MainFrame extends javax.swing.JFrame {
         cardpanel.repaint();
     }
 
-    public void showRestaurantMenuPanel() {
-        cardpanel.removeAll();
-        cardpanel.add(new LoginPanel(cardpanel, cardLayout, this), "Login");
-        cardpanel.add(new RegisterPanel(cardpanel, cardLayout), "Register");
-        cardpanel.add(new AdminDashboard(this, cardLayout), "AdminDashboard");
-        cardpanel.add(new AddRestaurantMenu(cardpanel, cardLayout), "AddRestaurantMenu");
-        cardLayout.show(cardpanel, "AddRestaurantMenu");
+    public void showPilihMakananPanel(User user) {
+        if (!isPanelAdded("PilihMakanan")) {
+            cardpanel.add(new PilihMakananPanel(cardpanel, cardLayout, user), "PilihMakanan");
+        }
+        cardLayout.show(cardpanel, "PilihMakanan");
+        LOGGER.info("Switched to PilihMakanan panel.");
         cardpanel.revalidate();
         cardpanel.repaint();
+    }
+
+    public void showKeranjangPanel(User user) {
+        if (!isPanelAdded("Keranjang")) {
+            cardpanel.add(new KeranjangPanel(cardpanel, cardLayout, user), "Keranjang");
+        }
+        cardLayout.show(cardpanel, "Keranjang");
+        LOGGER.info("Switched to Keranjang panel.");
+        cardpanel.revalidate();
+        cardpanel.repaint();
+    }
+
+    public void showRestaurantMenuPanel() {
+        if (!isPanelAdded("AddRestaurantMenu")) {
+            cardpanel.add(new AddRestaurantMenu(cardpanel, cardLayout), "AddRestaurantMenu");
+        }
+        cardLayout.show(cardpanel, "AddRestaurantMenu");
         LOGGER.info("Switched to AddRestaurantMenu panel.");
+        cardpanel.revalidate();
+        cardpanel.repaint();
     }
 
     public void showEditUserPanel() {
-        cardpanel.removeAll();
-        cardpanel.add(new LoginPanel(cardpanel, cardLayout, this), "Login");
-        cardpanel.add(new RegisterPanel(cardpanel, cardLayout), "Register");
-        cardpanel.add(new AdminDashboard(this, cardLayout), "AdminDashboard");
-        cardpanel.add(new EditUserPanel(cardpanel, cardLayout), "EditUserPanel");
+        if (!isPanelAdded("EditUserPanel")) {
+            cardpanel.add(new EditUserPanel(cardpanel, cardLayout), "EditUserPanel");
+        }
         cardLayout.show(cardpanel, "EditUserPanel");
+        LOGGER.info("Switched to EditUserPanel.");
         cardpanel.revalidate();
         cardpanel.repaint();
-        LOGGER.info("Switched to EditUserPanel.");
+    }
+
+    private boolean isPanelAdded(String panelName) {
+        for (java.awt.Component comp : cardpanel.getComponents()) {
+            if (panelName.equals(comp.getName())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
